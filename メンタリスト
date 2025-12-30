@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メンタリスト - 困りごとを整理する場所</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --dark: #1e1b4b;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
+            background: var(--gray-100);
+            color: var(--gray-900);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Header - シンプル */
+        .header {
+            background: var(--dark);
+            padding: 15px 20px;
+        }
+
+        .header-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .header-note {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85rem;
+        }
+
+        /* Hero - 1アクション特化 */
+        .hero {
+            background: linear-gradient(135deg, var(--dark) 0%, #312e81 100%);
+            padding: 80px 20px 100px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .hero h1 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .hero-sub {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            margin-bottom: 50px;
+        }
+
+        /* メイン入力エリア */
+        .input-card {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .input-label {
+            display: block;
+            text-align: left;
+            color: var(--gray-700);
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .main-input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .main-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .main-textarea {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 1rem;
+            min-height: 120px;
+            resize: vertical;
+            transition: all 0.3s;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+
+        .main-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .main-textarea::placeholder {
+            color: var(--gray-500);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .input-note {
+            text-align: center;
+            color: var(--gray-500);
+            font-size: 0.85rem;
+            margin-top: 20px;
+        }
+
+        /* コンテンツエリア */
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        /* AI整理結果 */
+        .result-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .result-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .result-subtitle {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+        }
+
+        /* 整理された内容 */
+        .organized-content {
+            background: var(--gray-100);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .organized-label {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .organized-text {
+            font-size: 1.05rem;
+            color: var(--gray-700);
+            line-height: 1.8;
+        }
+
+        .organized-item {
+            margin-bottom: 20px;
+        }
+
+        .organized-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .organized-item h4 {
+            color: var(--primary);
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        /* タグ */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .tag {
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+        }
+
+        /* スレッド表示 */
+        .thread-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .thread-card:hover {
+            border-color: var(--primary);
+        }
+
+        .thread-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #dcfce7;
+            color: #16a34a;
+            margin-bottom: 15px;
+        }
+
+        .thread-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .thread-description {
+            color: var(--gray-600);
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .thread-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            padding-top: 15px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        /* アクションボタン */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-outline {
+            background: #fff;
+            border: 2px solid var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* ローディング */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--gray-500);
+            font-size: 0.95rem;
+        }
+
+        /* フッター */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-500);
+            font-size: 0.85rem;
+        }
+
+        .footer-note {
+            max-width: 500px;
+            margin: 0 auto 15px;
+            padding: 15px;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 10px;
+            color: var(--gray-600);
+        }
+
+        /* 新規相談ボタン（フロート） */
+        .new-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 5px 25px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s;
+            border: none;
+            display: none;
+        }
+
+        .new-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .new-btn.show {
+            display: flex;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 600px) {
+            .hero {
+                padding: 50px 15px 70px;
+            }
+
+            .hero h1 {
+                font-size: 1.4rem;
+            }
+
+            .input-card {
+                padding: 25px 20px;
+            }
+
+            .result-card, .thread-card {
+                padding: 25px 20px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .header-note {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="#" class="logo" onclick="resetToHome()">
+                <div class="logo-icon">🧠</div>
+                <span>メンタリスト</span>
+            </a>
+            <span class="header-note">困りごとを整理する場所</span>
+        </div>
+    </header>
+
+    <!-- ヒーロー - 1アクション -->
+    <section class="hero" id="heroSection">
+        <h1>今、困っていることはありますか？</h1>
+        <p class="hero-sub">まずは書き出すだけ。整理はAIが手伝います。</p>
+
+        <div class="input-card">
+            <label class="input-label">困っていること（ひとことで）</label>
+            <input 
+                type="text" 
+                class="main-input" 
+                id="titleInput"
+                placeholder="例：Reactが難しくて挫折しそう"
+            >
+
+            <label class="input-label" style="margin-top: 20px;">もう少し詳しく（任意）</label>
+            <textarea 
+                class="main-textarea" 
+                id="detailInput"
+                placeholder="どんな状況？何を試した？どこで詰まってる？&#10;思いつくまま書いてみてください。"
+            ></textarea>
+
+            <button class="submit-btn" id="submitBtn" onclick="submitProblem()">
+                整理してもらう
+            </button>
+
+            <p class="input-note">
+                ※ 解決を約束はできません。<br>でも、整理の手伝いはします。
+            </p>
+        </div>
+    </section>
+
+    <!-- 結果エリア -->
+    <div class="content">
+        <!-- ローディング -->
+        <div class="result-section" id="loadingSection">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p class="loading-text">AIが内容を整理しています...</p>
+            </div>
+        </div>
+
+        <!-- AI整理結果 -->
+        <div class="result-section" id="resultSection">
+            <div class="result-card">
+                <div class="result-header">
+                    <div class="result-icon">✨</div>
+                    <div>
+                        <div class="result-title">整理できました</div>
+                        <div class="result-subtitle">あなたの困りごとを構造化しました</div>
+                    </div>
+                </div>
+
+                <div class="organized-content">
+                    <div class="organized-item">
+                        <div class="organized-label">📌 要約</div>
+                        <div class="organized-text" id="resultSummary">
+                            <!-- 動的に挿入 -->
+                        </div>
+                    </div>
+
+                    <div class="organized-item">
+                        <div class="organized-label">🔍 具体的な問題</div>
+                        <div class="organized-text" id="resultProblems">
+                            <!-- 動的に挿入 -->
+                        </div>
+                    </div>
+
+                    <div class="organized-item">
+                        <div class="organized-label">💡 考えられる方向性</div>
+                        <div class="organized-text" id="resultDirections">
+                            <!-- 動的に挿入 -->
+                        </div>
+                    </div>
+
+                    <div class="tags" id="resultTags">
+                        <!-- 動的に挿入 -->
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="publishThread()">
+                        🌐 みんなに相談する
+                    </button>
+                    <button class="btn btn-outline" onclick="resetToHome()">
+                        ✏️ 書き直す
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 公開されたスレッド -->
+        <div class="result-section" id="threadSection">
+            <div class="thread-card">
+                <span class="thread-status">📢 公開中</span>
+                <h3 class="thread-title" id="threadTitle"></h3>
+                <p class="thread-description" id="threadDescription"></p>
+
+                <div class="tags" id="threadTags"></div>
+
+                <div class="thread-meta">
+                    <span>👤 あなた</span>
+                    <span>📅 たった今</span>
+                    <span>💬 0 コメント</span>
+                </div>
+            </div>
+
+            <div class="result-card" style="text-align: center; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);">
+                <p style="font-size: 1.1rem; color: var(--gray-700); margin-bottom: 10px;">
+                    🎉 相談が公開されました！
+                </p>
+                <p style="color: var(--gray-500); font-size: 0.95rem;">
+                    誰かが見てくれるかもしれません。<br>
+                    通知が来たらまたお知らせします。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="footer-note">
+            🤝 将来はメンター（経験者）も参加予定です。<br>
+            今は「整理する」ことに集中しています。
+        </div>
+        <p>© 2024 メンタリスト - 困りごとを整理する場所</p>
+    </footer>
+
+    <!-- 新規相談ボタン -->
+    <button class="new-btn" id="newBtn" onclick="resetToHome()">+</button>
+
+    <script>
+        // 状態管理
+        let currentData = {
+            title: '',
+            detail: '',
+            summary: '',
+            problems: [],
+            directions: [],
+            tags: []
+        };
+
+        // 送信処理
+        function submitProblem() {
+            const title = document.getElementById('titleInput').value.trim();
+            const detail = document.getElementById('detailInput').value.trim();
+
+            if (!title) {
+                document.getElementById('titleInput').focus();
+                return;
+            }
+
+            currentData.title = title;
+            currentData.detail = detail;
+
+            // ヒーローを縮小
+            document.getElementById('heroSection').style.display = 'none';
+
+            // ローディング表示
+            showSection('loadingSection');
+
+            // AI処理（モック）
+            setTimeout(() => {
+                processWithAI(title, detail);
+            }, 1500 + Math.random() * 1000);
+        }
+
+        // AI処理（モック）
+        function processWithAI(title, detail) {
+            // 簡易的な分析ロジック（実際はAPI呼び出し）
+            const analysis = analyzeContent(title, detail);
+            
+            currentData.summary = analysis.summary;
+            currentData.problems = analysis.problems;
+            currentData.directions = analysis.directions;
+            currentData.tags = analysis.tags;
+
+            // 結果を表示
+            displayResult();
+        }
+
+        // 内容分析（モック）
+        function analyzeContent(title, detail) {
+            const combined = title + ' ' + detail;
+            
+            // キーワード検出
+            const keywords = {
+                'React': ['React', 'フロントエンド', 'JavaScript', 'Hooks'],
+                'Python': ['Python', 'バックエンド', 'プログラミング'],
+                '勉強': ['学習', '勉強法', 'モチベーション'],
+                '仕事': ['キャリア', '転職', '仕事'],
+                '挫折': ['モチベーション', '継続', '初心者'],
+                'わからない': ['基礎', '学習', '理解'],
+                '難しい': ['難易度', '段階的学習'],
+            };
+
+            let detectedTags = [];
+            Object.keys(keywords).forEach(key => {
+                if (combined.includes(key)) {
+                    detectedTags = [...detectedTags, ...keywords[key]];
+                }
+            });
+
+            // 重複除去
+            detectedTags = [...new Set(detectedTags)].slice(0, 5);
+            if (detectedTags.length === 0) {
+                detectedTags = ['相談', '整理中'];
+            }
+
+            // 問題の構造化
+            const problems = [
+                '何から手をつけていいかわからない状態',
+                '情報が多すぎて整理できていない',
+                '具体的なゴールが見えていない'
+            ];
+
+            // 方向性の提案
+            const directions = [
+                '小さく始める：まず1つだけに絞る',
+                '言語化する：人に説明するつもりで書く',
+                '期限を決める：1週間で○○まで、と区切る'
+            ];
+
+            // 要約生成
+            const summary = `「${title}」という状況ですね。${detail ? '詳細を読むと、' + (detail.length > 50 ? detail.substring(0, 50) + '...' : detail) + 'ということが見えてきます。' : 'まずは現状を整理してみましょう。'}`;
+
+            return {
+                summary,
+                problems,
+                directions,
+                tags: detectedTags
+            };
+        }
+
+        // 結果表示
+        function displayResult() {
+            document.getElementById('resultSummary').textContent = currentData.summary;
+            
+            document.getElementById('resultProblems').innerHTML = 
+                currentData.problems.map(p => `• ${p}`).join('<br>');
+            
+            document.getElementById('resultDirections').innerHTML = 
+                currentData.directions.map(d => `• ${d}`).join('<br>');
+            
+            document.getElementById('resultTags').innerHTML = 
+                currentData.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+            hideSection('loadingSection');
+            showSection('resultSection');
+            
+            // 新規ボタン表示
+            document.getElementById('newBtn').classList.add('show');
+        }
+
+        // スレッド公開
+        function publishThread() {
+            document.getElementById('threadTitle').textContent = currentData.title;
+            document.getElementById('threadDescription').textContent = 
+                currentData.summary + '\n\n' + 
+                '【具体的な問題】\n' + currentData.problems.join('\n');
+            
+            document.getElementById('threadTags').innerHTML = 
+                currentData.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+            hideSection('resultSection');
+            showSection('threadSection');
+
+            // スクロール
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ホームに戻る
+        function resetToHome() {
+            // 入力リセット
+            document.getElementById('titleInput').value = '';
+            document.getElementById('detailInput').value = '';
+
+            // セクション非表示
+            hideSection('loadingSection');
+            hideSection('resultSection');
+            hideSection('threadSection');
+
+            // ヒーロー表示
+            document.getElementById('heroSection').style.display = 'block';
+
+            // ボタン非表示
+            document.getElementById('newBtn').classList.remove('show');
+
+            // スクロール
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // データリセット
+            currentData = {
+                title: '',
+                detail: '',
+                summary: '',
+                problems: [],
+                directions: [],
+                tags: []
+            };
+        }
+
+        // セクション表示/非表示
+        function showSection(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function hideSection(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Enterキーで送信
+        document.getElementById('titleInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('detailInput').focus();
+            }
+        });
+
+        // Ctrl+Enterで送信
+        document.getElementById('detailInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                submitProblem();
+            }
+        });
+    </script>
+</body>
+</html>
